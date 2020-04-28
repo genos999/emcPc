@@ -116,7 +116,7 @@ export default {
 	        userInfo:[],
 	        MeetId:'',
 	        userID:'',
-	        userSig:'eJwtjdEKgjAARf9lzyFz6diEniKKWIlsgvhWbsoU3XJSafTvifl4zz3c*wGCce*pehAB5EGwWbKWqht0qRdsqmv*cljm5WTC0bbOOt5Pj5QeeLL6TjY3a7UEkR9AuEUYIfhv1NvqXoEIw4DAlQ26nYkfEgK3lGC6buhqPisNkoU4poaFPIlTyjJxEUMRd*fxpEWdYG5Yc6-3TUZ24PsDqm058Q__',//临时秘钥
+	        userSig:'o1a-pw0PWKfOhKxtxzHozYqSGPmI:eJwtjdEKgjAYhd9lt5X8WzqX0J2kaZCyoLxUNmuIOk1Kjd49MS-Pdz7O*aDLiRsv2SIHEQPQes5KyKpTuZpxjdONfkN0DfPzI*y7fvTrMWm4F5XHxX*KItVaCeRgE2BLKCHwb2SvVSuRQ8FksLBOlRPBFmNALWyZy4a6T2cZZDFpLoGIV3Z1C-AQuMRjfsqT1lbFrhgy2*UxzaNDvUffHzDpOFc_',//临时秘钥
 	        emojiMap: emojiMap,
 		    emojiName: emojiName,
 		    emojiUrl: emojiUrl,
@@ -194,7 +194,7 @@ export default {
 		},
 		loginTim:function(){
 			var thar = this;
-			let promise = tim.login({userID: thar.userInfo.unionid, userSig: thar.userSig});
+			let promise = tim.login({userID: thar.userInfo.openid, userSig: thar.userSig});
 			promise.then(function(imResponse) {
 				thar.setMyProfile();
 			  	thar.getHisMsg();
