@@ -1,0 +1,20 @@
+module.exports = {
+	devServer:{
+		proxy:{
+			'/apis':{
+				target:'http://emcapi.e-lab.cn:12315/api',
+				changeOrigin:true,
+				pathRewrite:{
+					'^/apis':''
+				}
+			},
+			'/wx':{
+				target:'https://api.weixin.qq.com',
+				changeOrigin:true,
+				pathRewrite:{
+					'^/wx':''
+				}
+			},
+		}
+	}
+}
