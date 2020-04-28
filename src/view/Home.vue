@@ -175,7 +175,6 @@ export default {
 			var thar = this;
 			var o = {
 				OpenId:thar.userInfo.openid,
-				UnionId:thar.userInfo.unionid,
 				NickName:thar.userInfo.nickname,
 				HeadImgUrl:thar.userInfo.headimgurl,
 			};
