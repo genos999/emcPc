@@ -116,7 +116,7 @@ export default {
 	        userInfo:[],
 	        MeetId:'',
 	        userID:'',
-	        userSig:'o1a-pw0PWKfOhKxtxzHozYqSGPmI:eJwtjdEKgjAYhd9lt5X8WzqX0J2kaZCyoLxUNmuIOk1Kjd49MS-Pdz7O*aDLiRsv2SIHEQPQes5KyKpTuZpxjdONfkN0DfPzI*y7fvTrMWm4F5XHxX*KItVaCeRgE2BLKCHwb2SvVSuRQ8FksLBOlRPBFmNALWyZy4a6T2cZZDFpLoGIV3Z1C-AQuMRjfsqT1lbFrhgy2*UxzaNDvUffHzDpOFc_',//临时秘钥
+	        userSig:'eJwtjdEKgjAYhd9lt5X8WzqX0J2kaZCyoLxUNmuIOk1Kjd49MS-Pdz7O*aDLiRsv2SIHEQPQes5KyKpTuZpxjdONfkN0DfPzI*y7fvTrMWm4F5XHxX*KItVaCeRgE2BLKCHwb2SvVSuRQ8FksLBOlRPBFmNALWyZy4a6T2cZZDFpLoGIV3Z1C-AQuMRjfsqT1lbFrhgy2*UxzaNDvUffHzDpOFc_',//临时秘钥
 	        emojiMap: emojiMap,
 		    emojiName: emojiName,
 		    emojiUrl: emojiUrl,
