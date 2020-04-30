@@ -20,13 +20,29 @@
 					</template>
 				</div>
 				<div class="im" id="mesglist" v-if="code" >
-					<div v-for="item in message" :class="item.flow=='in'?'left':'right'" v-cloak>
-						<div class="le"><img :src="item.avatar?item.avatar:'img/icon.png'" v-cloak></div>
-						<div class="ri">
-							<span v-text="item.nick?item.nick:'Guest'" style="display: block;" v-cloak></span>
-							<span v-if="item.payload[0].name=='text'" class="content" v-text="item.payload[0].text" v-cloak></span>
-							<span class="content" v-if="item.payload[0].name=='img'" v-cloak><img :src="item.payload[0].src" v-cloak></span>
-							<span class="content" v-if="item.payload[0].name=='image'" style="display: flex;" v-cloak><img :src="item.payload[0].text" v-cloak></span>
+					<div v-for="item in message" v-cloak>
+						<div v-if="item.type=='TIMGroupTipElem'" v-cloak>
+							<div class="stsmsg" v-if="item.payload.operationType==1">{{item.nick}}加入本房间</div>
+							<div class="stsmsg" v-if="item.payload.operationType==2">{{item.nick}}退出本房间</div>
+							<div class="stsmsg" v-if="item.payload.operationType==3">{{item.nick}}被踢出本房间</div>
+							<div class="stsmsg" v-if="item.payload.operationType==4">{{item.nick}}被设为房间管理员</div>
+							<div class="stsmsg" v-if="item.payload.operationType==5">{{item.nick}}取消房间管理员</div>
+							<div class="stsmsg" v-if="item.payload.operationType==6">房间资料变更</div>
+							<div class="stsmsg" v-if="item.payload.operationType==7">房间成员资料变更</div>
+						</div>
+						<div v-else-if="item.type=='TIMTextElem'" :class="item.flow=='in'?'left':'right'" v-cloak>
+							<div class="le"><img :src="item.avatar?item.avatar:'img/icon.png'" v-cloak></div>
+							<div class="ri">
+								<span v-text="item.nick?item.nick:'Guest'" style="display: block;" v-cloak></span>
+								<span class="content" v-text="item.payload.text" v-cloak></span>
+							</div>
+						</div>
+						<div v-else-if="item.type=='TIMImageElem'" :class="item.flow=='in'?'left':'right'" v-cloak>
+							<div class="le"><img :src="item.avatar?item.avatar:'img/icon.png'" v-cloak></div>
+							<div class="ri">
+								<span v-text="item.nick?item.nick:'Guest'" style="display: block;" v-cloak></span>
+								<span class="content" style="display: flex;" v-cloak><img :src="item.payload.imageInfoArray[0].imageUrl" v-cloak></span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -38,19 +54,13 @@
 				<div class="con">
 					<input type="text" class="input" v-model="text">
 					<div class="mile">
-						<!-- <img src="img/mile.png" @click="doemot"> -->
 						<img src="img/mile.png" @click="handleSendImageClick">
 						<img src="img/wx.png" @click="getLogin" v-if="!code">
 						<div class="fullscr" v-if="bindWechatShow"></div>
 						<div class="login-qr" v-if="bindWechatShow">
 							<wxlogin :appid="appid" :scope="scope" :theme='style' :state='state' :redirect_uri="redirect_uri"></wxlogin>
 						</div>
-						<button @click="adddanmu">发送</button>
-					</div>
-					<div class="emot" v-if="emot" v-cloak>
-						<li v-for="em in emojiName">
-							<img :src="emojiUrl + emojiMap[em]" @click="sendemot(em)">
-						</li>
+						<button @click="addmsg">发送</button>
 					</div>
 					<input type="file" id="imagePicker" ref="imagePicker" accept=".jpg, .jpeg, .png, .gif" @change="sendImage" style="display:none"/>
 				</div>
@@ -198,7 +208,6 @@ export default {
 			promise.then(function(imResponse) {
 				thar.setMyProfile();
 			  	thar.getHisMsg();
-			  	thar.getMyProfile();
 			  	console.log(imResponse);
 			}).catch(function(imError) {
 			  console.warn('login error:', imError);
@@ -223,92 +232,16 @@ export default {
 				promise.then(function(imResponse) {
 				  
 				}).catch(function(imError) {
-				  console.warn('updateMyProfile error:', imError); // 更新资料失败的相关信息
+				  console.warn('updateMyProfile error:', imError);
 				});
 			};
-			tim.on(TIM.EVENT.SDK_READY, onSdkReady);
-		},
-		getMyProfile:function(){
-			var thar = this;
-			let onSdkReady = function(event) {
-				let promise = tim.getMyProfile();
-				promise.then(function(imResponse) {
-				  
-				}).catch(function(imError) {
-				  console.warn('getMyProfile error:', imError); // 获取个人资料失败的相关信息
-				});
-			}
 			tim.on(TIM.EVENT.SDK_READY, onSdkReady);
 		},
 		getLogin:function(){
 			var thar = this;
 			thar.bindWechatShow = true;
 		},
-		getMsg:function(){
-			var thar = this;
-			this.$axios({
-			    method:"get",
-			    url:thar.url,
-			    params:{type:'msg'}
-			}).
-			then((res)=>{
-			    if(res.data.code==200){
-			    	thar.msg = res.data.data;
-				}
-			},(err)=>{
-			    console.log(err);
-			})
-		},
-		sendemot:function(em){
-			var thar = this;
-			var ars = [];
-			ars['text'] = em;
-			let con = thar.$utils.decodeText(ars);
-			if(con.name=='text'){
-				thar.text = con.text;
-			}else{
-				thar.text = con.src;
-			}
-			let message = tim.createTextMessage({
-			  to: thar.groupId,
-			  conversationType: TIM.TYPES.CONV_GROUP,
-			  payload: {
-			    text: em
-			  }
-			});
-			let promise = tim.sendMessage(message);
-			promise.then(function(imResponse) {
-			  // 发送成功
-			  let res = imResponse.data.message;
-			  let rey = [];
-			  rey['avatar'] = thar.userInfo.headimgurl;
-			  rey['nick'] = thar.userInfo.nickname;
-			  rey['payload'] = thar.$utils.decodeText(res.payload);
-			  thar.message.push(rey);
-			  thar.text="";
-			}).catch(function(imError) {
-			  // 发送失败
-			  console.warn('sendMessage error:', imError);
-			});
-			if(thar.emot){
-				thar.emot = false;
-			}else{
-				thar.emot = true;
-			}
-			thar.zan = false;
-			thar.proms = false;
-		},
-		doemot:function(){
-			var thar = this;
-			if(thar.emot){
-				thar.emot = false;
-			}else{
-				thar.emot = true;
-			}
-			thar.zan = false;
-			thar.proms = false;
-		},
-		adddanmu:function(){
+		addmsg:function(){
 			var thar = this;
 			// var num = parseInt(Math.random()*10);
 			// thar.barrageList.push({
@@ -328,11 +261,9 @@ export default {
 			promise.then(function(imResponse) {
 			  // 发送成功
 			  let res = imResponse.data.message;
-			  let rey = [];
-			  rey['avatar'] = thar.userInfo.headimgurl;
-			  rey['nick'] = thar.userInfo.nickname;
-			  rey['payload'] = thar.$utils.decodeText(res.payload);
-			  thar.message.push(rey);
+			  res['avatar'] = thar.userInfo.headimgurl;
+			  res['nick'] = thar.userInfo.nickname;
+			  thar.message.push(res);
 			  thar.text="";
 			}).catch(function(imError) {
 			  // 发送失败
@@ -344,22 +275,15 @@ export default {
 			let onSdkReady = function(event) {
 			  let promise = tim.getMessageList({conversationID: 'GROUP'+thar.groupId, count: 15});
 				promise.then(function(imResponse) {
-				  const messageList = imResponse.data.messageList; // 消息列表。
-				  const nextReqMessageID = imResponse.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
-				  const isCompleted = imResponse.data.isCompleted; // 表示是否已经拉完所有消息。
+				  const messageList = imResponse.data.messageList;
+				  const nextReqMessageID = imResponse.data.nextReqMessageID;
+				  const isCompleted = imResponse.data.isCompleted;
 				  let arr = [];
 				  for(var k in messageList){
 				  	arr.push(messageList[k]);
 				  }
-				  for(var i=0;i<arr.length;i++){
-				  	if(arr[i]['payload']['uuid']){
-				  		arr[i]['payload']['text'] = arr[i]['payload']['imageInfoArray'][0]['imageUrl'];
-				  	}
-				  }
-				  for(var i=0;i<arr.length;i++){
-				  	arr[i]['payload'] = thar.$utils.decodeText(arr[i]['payload']);
-				  }
 				  thar.message = arr;
+				  console.log(thar.message);
 				});
 			};
 			tim.on(TIM.EVENT.SDK_READY, onSdkReady);
@@ -370,16 +294,13 @@ export default {
 			let onMessageReceived = function(event) {
 				let res = event.data[0];
 				console.log(res);
-				if(res['payload']['uuid']){
-			  		res['payload']['text'] = res['payload']['imageInfoArray'][0]['imageUrl'];
-			  	}
-			  	res['payload'] = thar.$utils.decodeText(res['payload']);
 			  	thar.message.push(res);
 			};
 			tim.on(TIM.EVENT.MESSAGE_RECEIVED, onMessageReceived);
 		},
 		handleSendImageClick:function(){
-			if(this.code){
+			var thar = this;
+			if(thar.code){
 				this.$refs.imagePicker.click();
 			}else{
 				alert("请登录");
@@ -401,13 +322,9 @@ export default {
 			promise.then(function(imResponse) {
 			  console.log(imResponse);
 			  let res = imResponse.data.message;
-			  let rey = [];
-			  res['payload']['text'] = res['payload']['imageInfoArray'][0]['imageUrl'];
-			  res['payload'] = thar.$utils.decodeText(res['payload']);
-			  rey['avatar'] = thar.userInfo.headimgurl;
-			  rey['nick'] = thar.userInfo.nickname;
-			  rey['payload'] = res['payload'];
-			  thar.message.push(rey);
+			  res['avatar'] = thar.userInfo.headimgurl;
+			  res['nick'] = thar.userInfo.nickname;
+			  thar.message.push(res);
 			}).catch(function(imError) {
 			  console.warn('sendMessage error:', imError);
 			});
@@ -423,7 +340,6 @@ export default {
 	created(){
 		this.MeetId = this.$utils.getUrlKey("MeetId") || '4733412023323097580';
 		this.login();
-		this.getMsg();
 	},
 	computed: {
       swiper() {
@@ -458,7 +374,7 @@ export default {
 	.chat .im .right .ms{margin-left: 10px;background: #ea68a2;color: #fff;padding: 2px 8px;border-radius: 9px;}
 	.chat .im .right .zj{margin-left: 10px;background: #22ac38;color: #fff;padding: 2px 8px;border-radius: 9px;}
 	.chat .im .right .ding{margin-left: 7px;background: #f8b551;color: #fff;padding: 2px 8px;border-radius: 9px;}
-	.chat .im .right .content{width:65%;display: block;background: #f1f1f1;padding: 10px 10px;margin: 15px 0;border-radius: 23px 20px 20px 0;text-align: left;float: right;}
+	.chat .im .right .content{width:90%;display: block;background: #f1f1f1;padding: 10px 10px;margin: 15px 0;border-radius: 23px 20px 20px 0;text-align: left;float: right;}
 	.chat .im .left .le{float: left;}
 	.chat .im .right .le{float: right;}
 	.chat .im .left .ri{float: left;}
@@ -500,4 +416,5 @@ export default {
 	.iflogin{width: 100%;height: 100%;background: #000;opacity: 0.5;z-index: 1;text-align: center;}
 	.iflogin span{color: #fff;z-index: 2;}
 	.content img {max-width: 100px ! important;width: 100% ! important;}
+	.stsmsg{text-align: center;font-size: 12px;color: #a2a0a0;}
 </style>

@@ -30,6 +30,7 @@
 	.cont .mains .art .act span{font-size:16px;height: 40px;line-height: 40px;}
 	#main .cent .player .title .t2 img{width: 25px;}
 	#main .cent .player .title .t2 span{font-size: 16px;padding: 0 0 0 10px;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 } /*>=1024的设备屏幕*/
  
 @media (min-width: 1100px) {
@@ -67,6 +68,7 @@
 	#main .cent .rank{width: 20%;}
 	#main .cent .chat{width: 20%;}
 	#main .cent .player{width: 59%;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 } /*>=1100的设备屏幕*/
 @media (min-width: 1280px) {
 	#main .cent .rank .aleft ul li{height: 45px;line-height: 45px;}
@@ -103,6 +105,7 @@
 	#main .cent .rank{width: 20%;}
 	#main .cent .chat{width: 20%;}
 	#main .cent .player{width: 59%;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 } /*>=1280的设备屏幕*/
  
 @media (min-width: 1366px) {
@@ -142,6 +145,7 @@
 	#main .cent .rank{width: 20%;}
 	#main .cent .chat{width: 20%;}
 	#main .cent .player{width: 59%;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 } /*>=1366的设备屏幕*/ 
  
 @media (min-width: 1440px) {
@@ -186,6 +190,7 @@
 	#main .cent .rank{width: 20%;}
 	#main .cent .chat{width: 20%;}
 	#main .cent .player{width: 59%;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 } /*>=1440的设备屏幕*/ 
  
 @media (min-width: 1680px) {
@@ -231,6 +236,7 @@
 	#main .cent .rank{width: 20%;}
 	#main .cent .chat{width: 20%;}
 	#main .cent .player{width: 59%;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
 }  /*>=1680的设备屏幕*/ 
 @media (min-width: 1920px) {
 	#main .cent .rank .aleft ul li{height: 48px;line-height: 48px;}
@@ -274,4 +280,6 @@
 	#main .cent .rank{width: 378px;}
 	#main .cent .chat{width: 378px;}
 	#main .cent .player{width: 1095px;}
+	.payimg{width: 360px;height: 350px;margin-top: -180px;margin-left: -175px;}
+	#qrcode{margin-left: -65px;margin-top: -40px;}
 }  /*>=1920的设备屏幕*/

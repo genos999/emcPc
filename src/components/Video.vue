@@ -51,8 +51,8 @@
 							</div>
 							<div class="gifmain">
 								<li v-for="(g,i) in gifs1" v-if="gifshow==1" @click="dopostmer(g,$event,i)" :class="divIndex==i?'active':''" v-cloak>
-									<img :src="g.icon">
-									<span>{{g.name}}<em>￥ {{g.price}}E</em></span>
+									<img :src="'img/gif_02.png'">
+									<span>{{g.productName}}<em>￥ {{g.productPrices}}E</em></span>
 									<span class="bak" v-if="divIndex==i?show:!show">
 										<img src="img/pus.png" @click="changeNum('-1')">
 										<input type="text" v-model="num">
@@ -60,8 +60,8 @@
 									</span>
 								</li>
 								<li v-for="(g,i) in gifs2" v-if="gifshow==2" @click="dopostmer(g,$event,i)" :class="divIndex==i?'active':''" v-cloak>
-									<img :src="g.icon">
-									<span>{{g.name}}<em>￥ {{g.price}}E</em></span>
+									<img :src="'img/gif_02.png'">
+									<span>{{g.productName}}<em>￥ {{g.productPrices}}E</em></span>
 									<span class="bak" v-if="divIndex==i?show:!show">
 										<img src="img/pus.png" @click="changeNum('-1')">
 										<input type="text" v-model="num">
@@ -69,8 +69,8 @@
 									</span>
 								</li>
 								<li v-for="(g,i) in gifs3" v-if="gifshow==3" @click="dopostmer(g,$event,i)" :class="divIndex==i?'active':''" v-cloak>
-									<img :src="g.icon">
-									<span>{{g.name}}<em>￥ {{g.price}}E</em></span>
+									<img :src="'img/gif_02.png'">
+									<span>{{g.productName}}<em>￥ {{g.productPrices}}E</em></span>
 									<span class="bak" v-if="divIndex==i?show:!show">
 										<img src="img/pus.png" @click="changeNum('-1')">
 										<input type="text" v-model="num">
@@ -78,8 +78,8 @@
 									</span>
 								</li>
 								<li v-for="(g,i) in gifs4" v-if="gifshow==4" @click="dopostmer(g,$event,i)" :class="divIndex==i?'active':''" v-cloak>
-									<img :src="g.icon">
-									<span>{{g.name}}<em>￥ {{g.price}}E</em></span>
+									<img :src="'img/gif_02.png'">
+									<span>{{g.productName}}<em>￥ {{g.productPrices}}E</em></span>
 									<span class="bak" v-if="divIndex==i?show:!show">
 										<img src="img/pus.png" @click="changeNum('-1')">
 										<input type="text" v-model="num">
@@ -87,8 +87,8 @@
 									</span>
 								</li>
 								<li v-for="(g,i) in gifs5" v-if="gifshow==5" @click="dopostmer(g,$event,i)" :class="divIndex==i?'active':''" v-cloak>
-									<img :src="g.icon">
-									<span>{{g.name}}<em>￥ {{g.price}}E</em></span>
+									<img :src="'img/gif_02.png'">
+									<span>{{g.productName}}<em>￥ {{g.productPrices}}E</em></span>
 									<span class="bak" v-if="divIndex==i?show:!show">
 										<img src="img/pus.png" @click="changeNum('-1')">
 										<input type="text" v-model="num">
@@ -100,7 +100,7 @@
 							<div class="topline">
 								<div style="width:50%;float:left;"></div>
 								<div style="width:50%;float:right;">
-									<span>总计：{{items.price?items.price*num:0}}E</span>
+									<span>总计：{{items.productPrices?items.productPrices*num:0}}E</span>
 									<button @click="dogifts">赠送</button>
 								</div>
 							</div>
@@ -113,16 +113,16 @@
 							<ul>
 								<li v-for="(t,i) in person" v-cloak @click="actremove($event,i)">
 									<span id="check">
-										<input type="checkbox" class="input_check" :id="'check'+t.UserGuId">
-										<label :class="acts&&i==0?'act label_check':'label_check'" :for="'check'+t.UserGuId"></label>
+										<input type="checkbox" class="input_check" :id="'check'+t.userGuId">
+										<label :class="acts?'act label_check':'label_check'" :for="'check'+t.userGuId"></label>
 									</span>
-									<img class="head" src="img/icon.png" @click="doimgsure($event,t.UserGuId)">
-									<span class="span" v-text="t.NickName"></span>
+									<img class="head" src="img/icon.png" @click="doimgsure($event,t.userGuId)">
+									<span class="span" v-text="t.nickName"></span>
 								</li>
 							</ul>
 							<div class="total">
-								<span>￥{{items.price*num}}×{{personnum}}</span>
-								<span>￥{{items.price*num*personnum}}</span>
+								<span>￥{{items.productPrices*num}}×{{personnum}}</span>
+								<span>￥{{items.productPrices*num*personnum}}</span>
 							</div>
 							<div class="way">
 								<div class="ways">
@@ -140,9 +140,13 @@
 								</div>
 							</div>
 							<div class="ofsure">
-								<button @click="pay($event)">确认支付</button>
+								<button @click="payway($event)">确认支付</button>
 							</div>
 						</div>
+					</div>
+					<div class="payimg" v-show="pay">
+						<img src="img/close.png" class="closepay" @click="pay=!pay">
+						<div id="qrcode" ref="qrcode"></div>
 					</div>
 				</div>
 			</div>
@@ -167,12 +171,16 @@
 	</div>
 </template>
 <script>
+import Vue from 'vue';
 import videojs from 'video.js'
 import 'videojs-contrib-hls'
 import 'video.js/dist/video.min.js'
 import { MESSAGE_TYPE } from 'vue-baberrage'
 import Clipboard from 'clipboard'
-import '../assets/scss/style.css';
+import '../assets/scss/style.css'
+import QRCode from 'qrcodejs2'
+import 'vue2-toastr/dist/css/vue2-toastr.css'
+var intervalFunc;
 export default {
   name: 'Ranking',
   props: {
@@ -202,8 +210,8 @@ export default {
 		gifs4:[],
 		gifs5:[],
 		show:true,
-		num:1,
-		personnum:1,
+		num:0,
+		personnum:0,
 		checkedValue:'alipay',
   		actpay:true,
 		haibao:[],
@@ -211,14 +219,47 @@ export default {
 		barrageIsShow: true,
 		barrageLoop: false,
 		barrageList: [],
-  		acts:true,
+  		acts:false,
   		sure:false,
-		attr:[0],
+		attr:[],
 		zan:false,
 		msg: [],
+		wxPayData:[],
+		pay:false
       }
   },
   methods:{
+  	getGifts:function(){
+  		var thar = this;
+  		this.$axios({
+			method:'get',
+			url:'http://emcapi.e-lab.cn:12315/api/EMc/GiftProduct',
+			headers:{
+				'UserGuid':window.localStorage.getItem('UserGuid'),
+				'Authorization':'Bearer '+window.localStorage.getItem('Token'),
+			},
+		}).
+		then((res)=>{
+			var arr = [];
+			arr = res.data.data;
+			for(var i=0;i<arr.length;i++){
+				if(arr[i]['groupId']==1){
+					thar.gifs1.push(arr[i]);
+				}else if(arr[i]['groupId']==2){
+					thar.gifs2.push(arr[i]);
+				}else if(arr[i]['groupId']==3){
+					thar.gifs3.push(arr[i]);
+				}else if(arr[i]['groupId']==4){
+					thar.gifs4.push(arr[i]);
+				}else{
+					thar.gifs5.push(arr[i]);
+				}
+			}
+			console.log(res.data);
+		},(err)=>{
+		    console.log(err);
+		})
+  	},
     fullscreen:function(){
 		var player = videojs('videomv', {}, function(){})
 		player.requestFullscreen();
@@ -310,7 +351,6 @@ export default {
 			thar.num = thar.num+i;
 		}
 	},
-
 	dogifts:function(){
 		var thar = this;
 		thar.zan = false;
@@ -326,19 +366,16 @@ export default {
 			thar.acts=false;
 		}
 	},
-	doimgsure:function(e,id){
+	doimgsure:function(e,UserGuId){
 		var thar = this;
-		if(thar.attr[0]==thar.attr[1]){
-			thar.attr.splice(0,1);
-		}
 		var change = true;
 		if(e.currentTarget.parentElement.firstElementChild.firstElementChild.checked==false){
 			e.currentTarget.parentElement.firstElementChild.firstElementChild.checked = true;
-			thar.attr.push(id);
+			thar.attr.push(UserGuId);
 		}else{
 			e.currentTarget.parentElement.firstElementChild.firstElementChild.checked = false;
 			for(var i=0;i<thar.attr.length;i++){
-				if(thar.attr[i]==id){
+				if(thar.attr[i]==UserGuId){
 					thar.attr.splice(i,1);
 				}
 			}
@@ -356,9 +393,120 @@ export default {
 		}
 		thar.personnum = thar.attr.length;
 	},
-	pay:function(e){
+	payway:function(e){
 		var thar = this;
-		alert(thar.items.price*thar.num*thar.personnum+','+thar.checkedValue);
+		if(thar.checkedValue=='wechat'){
+			thar.paywx();
+		}
+		// alert(thar.items.productPrices*thar.num*thar.personnum+','+thar.checkedValue);
+	},
+	paywx:function(){
+		var thar = this;
+		var productId = thar.items.productId;
+		var productName = thar.items.productName;
+		var productPrices = thar.items.productPrices*thar.num*thar.personnum;
+		this.$axios({
+		method:'get',
+			url:'http://emcapi.e-lab.cn:12315/api/EMcPay/WxPay/'+productId+'/'+productName+'/'+productPrices,
+			headers:{
+				'UserGuid':window.localStorage.getItem('UserGuid'),
+				'Authorization':'Bearer '+window.localStorage.getItem('Token'),
+			},
+		}).
+		then((res)=>{
+			thar.wxPayData = res.data.data;
+			thar.pay = !thar.pay;
+			thar.sure = !thar.sure;
+			thar.crateQrcode(res.data.data.wx_qrcode);
+		},(err)=>{
+		    console.log(err);
+		})
+	},
+	crateQrcode(url){
+	    this.qr = new QRCode('qrcode', {
+	      width: 130,
+	      height: 130,
+	      text: url
+	    })
+	    this.getPayRes();
+	},
+	getPayRes:function(){
+		var thar = this;
+		var o ={
+			'UserGuid':window.localStorage.getItem('UserGuid'),
+			'ProductId':thar.items.productId,
+			'ProductNuber':thar.num,
+			'MeetRoomNo':thar.vid.meeetRoomNo,
+			'MeetId':this.$parent.$data.MeetId,
+			'Money':thar.items.productPrices*thar.num*thar.personnum,
+			'out_trade_no':thar.wxPayData.out_trade_no,
+			'listtUser':thar.attr,
+			'zfb_external_out_trade_no':null,
+			'ProductName':thar.items.productName
+		};
+		this.$axios({
+		method:'post',
+			url:'http://emcapi.e-lab.cn:12315/api/EMcPay/WxSelectPay',
+			headers:{
+				'UserGuid':window.localStorage.getItem('UserGuid'),
+				'Authorization':'Bearer '+window.localStorage.getItem('Token'),
+			},
+			data:o,
+		}).
+		then((res)=>{
+			switch(res.data.data.trade_state){
+				case 'SUCCESS':
+					//支付成功
+					this.$toast.success({
+					    message:'支付成功',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'REFUND':
+					//转入退款
+					thar.pay = !thar.pay;
+					break;
+				case 'NOTPAY':
+					//未支付
+					setTimeout(function(){
+						thar.getPayRes()
+					},3000);
+					break;
+				case 'CLOSED':
+					//已关闭
+					this.$toast.success({
+					    message:'订单已关闭',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'REVOKED':
+					//已撤销
+					this.$toast.success({
+					    message:'订单已撤销',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'USERPAYING':
+					//支付中
+					setTimeout(function(){
+						thar.getPayRes()
+					},3000);
+					break;
+				case 'PAYERROR':
+					//支付失败
+					this.$toast.success({
+					    message:'支付失败',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+			}
+		},(err)=>{
+		    console.log(err);
+		})
 	},
 	copy:function(){
 		var thar = this;
@@ -446,83 +594,8 @@ export default {
 		}).
 		then((res)=>{
 			thar.person = res.data.data;
-			thar.person.unshift({"id":0,'ico':'img/icon.png','name':'E-Lab',price:''});
-			console.log(res);
-		},(err)=>{
-		    console.log(err);
-		})
-	},
-	getGifs1:function(){
-		var thar = this;
-		this.$axios({
-		    method:"get",
-		    url:thar.url,
-		    params:{type:'gifs1'}
-		}).
-		then((res)=>{
-		    if(res.data.code==200){
-		    	thar.gifs1 = res.data.data;
-			}
-		},(err)=>{
-		    console.log(err);
-		})
-	},
-	getGifs2:function(){
-		var thar = this;
-		this.$axios({
-		    method:"get",
-		    url:thar.url,
-		    params:{type:'gifs2'}
-		}).
-		then((res)=>{
-		    if(res.data.code==200){
-		    	thar.gifs2 = res.data.data;
-			}
-		},(err)=>{
-		    console.log(err);
-		})
-	},
-	getGifs3:function(){
-		var thar = this;
-		this.$axios({
-		    method:"get",
-		    url:thar.url,
-		    params:{type:'gifs3'}
-		}).
-		then((res)=>{
-		    if(res.data.code==200){
-		    	thar.gifs3 = res.data.data;
-			}
-		},(err)=>{
-		    console.log(err);
-		})
-	},
-	getGifs4:function(){
-		var thar = this;
-		this.$axios({
-		    method:"get",
-		    url:thar.url,
-		    params:{type:'gifs4'}
-		}).
-		then((res)=>{
-		    if(res.data.code==200){
-		    	thar.gifs4 = res.data.data;
-			}
-		},(err)=>{
-		    console.log(err);
-		})
-	},
-	getGifs5:function(){
-		var thar = this;
-		this.$axios({
-		    method:"get",
-		    url:thar.url,
-		    params:{type:'gifs5'}
-		}).
-		then((res)=>{
-		    if(res.data.code==200){
-		    	thar.gifs5 = res.data.data;
-			}
+			// thar.person.unshift({"id":0,'ico':'img/icon.png','name':'E-Lab',price:''});
+			console.log(res.data);
 		},(err)=>{
 		    console.log(err);
 		})
@@ -554,11 +627,7 @@ export default {
   created(){
 	this.getInfo();
     this.getPerson();
-	this.getGifs1();
-	this.getGifs2();
-	this.getGifs3();
-	this.getGifs4();
-	this.getGifs5();
+    this.getGifts();
 	this.getPhoneCode();
 	this.getHaibao();
   }
@@ -613,7 +682,7 @@ export default {
 }
 .control input[type="checkbox"]:checked + label.label {background-color: #e0e0e0;}
 .control input[type="checkbox"]:checked + label.label:after {left: 29px;}
-.gift{position: absolute;width: 500px;height: 410px;background: #fff;border-radius: 10px;left: 45%;bottom: 90px;padding:0 10px 10px 10px;opacity: 0.97;}
+.gift{position: absolute;width: 500px;height: 410px;background: #fff;border-radius: 10px;left: 45%;bottom: 90px;padding:0 10px 10px 10px;opacity: 0.97;z-index:1;}
 .gift .giftit{width: 100%;height: 40px;line-height: 40px;text-align: center;overflow-x: scroll;overflow: auto;white-space: nowrap;overflow-y:hidden;}
 .gift .giftit span{width: 20%;float: left;cursor: pointer;color: #858585;font-size:16px;}
 .gift .giftit span.active{color: #29abe2;}
@@ -625,7 +694,7 @@ export default {
 .gift .gifmain li{width: 32%;height: 150px;float:left;list-style-type: none;cursor: pointer;line-height: 20px;}
 .gift .gifmain li.active{border:1px solid #ff0468;height: 150px;border-bottom: none;}
 .gift .gifmain li img{width: 100%;height: 90px;}
-.gift .gifmain li span{font-size: 14px;width: 100%;line-height: 30px;text-align: center;display: block;}
+.gift .gifmain li span{font-size: 12px;width: 100%;line-height: 30px;text-align: center;display: block;}
 .gift .gifmain li span em{color: #29abe2;font-style:normal}
 .gift .gifmain li span.bak{background:#ff0468;width: 100%;height: 30px;display: block;}
 .gift .gifmain li span.bak img{width: 20px;height: auto;vertical-align: middle;margin-top: 5px;}
@@ -637,7 +706,7 @@ export default {
 .gift .topline{clear:both;width: 100%;border-top: 3px solid #ccc;}
 .gift .topline span{font-size: 20px;}
 .gift .topline button{border:none;outline: none;background:#ff0468;color: #fff;padding: 5px 15px;border-radius: 5px;margin-left: 25px;cursor: pointer;}
-.sure{background: url(/img/pay.png) no-repeat;position: absolute;background-size: 100%;}
+.sure{background: url(/img/pay.png) no-repeat;position: absolute;background-size: 100%;z-index:1;}
 .sure .suremain{position: relative;width: 100%;height: 100%;}
 .sure .suremain .close{position: absolute;right: 10px;top: 10px;cursor:pointer;}
 .sure .suremain p{color: #fff;text-align: center;font-size: 22px;letter-spacing: 6px;height: 50px;line-height: 50px;}
@@ -691,4 +760,7 @@ export default {
 .proms a{position: absolute;right: 0;top: 0;width: 70px;height: 70px;}
 .fenxiang{width: 80px;height: 40px;top: 25px;right: 10px;}
 .baberrage-stage {position: absolute;width: 100%;height: 180px;overflow: hidden;top: 0;font-size: 15px;}
+.payimg{background: url(/img/wxpay.png);background-size:100%;position: absolute;top: 50%;left: 50%;z-index: 2;}
+#qrcode{position: absolute;top: 50%;left: 50%;}
+.closepay{position: absolute;top: 20px;right: 20px;cursor: pointer;}
 </style>
