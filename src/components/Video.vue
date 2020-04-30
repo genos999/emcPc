@@ -255,7 +255,6 @@ export default {
 					thar.gifs5.push(arr[i]);
 				}
 			}
-			console.log(res.data);
 		},(err)=>{
 		    console.log(err);
 		})
@@ -594,8 +593,6 @@ export default {
 		}).
 		then((res)=>{
 			thar.person = res.data.data;
-			// thar.person.unshift({"id":0,'ico':'img/icon.png','name':'E-Lab',price:''});
-			console.log(res.data);
 		},(err)=>{
 		    console.log(err);
 		})
