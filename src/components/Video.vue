@@ -144,7 +144,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="payimg" v-show="pay">
+					<div class="payimg" :style="checkedValue=='wechat'?'background: url(/img/wxpay.png);':'background: url(/img/zfbpay.png);'" v-show="pay">
 						<img src="img/close.png" class="closepay" @click="pay=!pay">
 						<div id="qrcode" ref="qrcode"></div>
 					</div>
@@ -225,6 +225,7 @@ export default {
 		zan:false,
 		msg: [],
 		wxPayData:[],
+		aliPayData:[],
 		pay:false
       }
   },
@@ -396,6 +397,8 @@ export default {
 		var thar = this;
 		if(thar.checkedValue=='wechat'){
 			thar.paywx();
+		}else{
+			thar.payalipay();
 		}
 		// alert(thar.items.productPrices*thar.num*thar.personnum+','+thar.checkedValue);
 	},
@@ -421,15 +424,55 @@ export default {
 		    console.log(err);
 		})
 	},
+	payalipay:function(){
+		var thar = this;
+		var productId = thar.items.productId;
+		var productName = thar.items.productName;
+		var productPrices = thar.items.productPrices*thar.num*thar.personnum;
+		var o ={
+			'UserGuid':window.localStorage.getItem('UserGuid'),
+			'ProductId':thar.items.productId,
+			'ProductName':thar.items.productName,
+			'ProductNuber':thar.num,
+			'MeetRoomNo':thar.vid.meeetRoomNo,
+			'MeetId':this.$parent.$data.MeetId,
+			'Money':thar.items.productPrices*thar.num*thar.personnum,
+			'out_trade_no':null,
+			'listtUser':thar.attr,
+			'zfb_external_out_trade_no':null,
+		};
+		this.$axios({
+		method:'post',
+			url:'http://emcapi.e-lab.cn:12315/api/EMcPay/AlipayPay',
+			headers:{
+				'UserGuid':window.localStorage.getItem('UserGuid'),
+				'Authorization':'Bearer '+window.localStorage.getItem('Token'),
+			},
+			data:o,
+		}).
+		then((res)=>{
+			thar.aliPayData = res.data.data;
+			thar.pay = !thar.pay;
+			thar.sure = !thar.sure;
+			thar.crateQrcode(res.data.data.zfb_qrcode);
+		},(err)=>{
+		    console.log(err);
+		})
+	},
 	crateQrcode(url){
+		var thar = this;
 	    this.qr = new QRCode('qrcode', {
 	      width: 130,
 	      height: 130,
 	      text: url
 	    })
-	    this.getPayRes();
+	    if(thar.checkedValue=='wechat'){
+			this.getPayWxRes();
+		}else{
+			thar.getPayAliRes();
+		}
 	},
-	getPayRes:function(){
+	getPayWxRes:function(){
 		var thar = this;
 		var o ={
 			'UserGuid':window.localStorage.getItem('UserGuid'),
@@ -469,7 +512,7 @@ export default {
 				case 'NOTPAY':
 					//未支付
 					setTimeout(function(){
-						thar.getPayRes()
+						thar.getPayWxRes()
 					},3000);
 					break;
 				case 'CLOSED':
@@ -491,7 +534,85 @@ export default {
 				case 'USERPAYING':
 					//支付中
 					setTimeout(function(){
-						thar.getPayRes()
+						thar.getPayWxRes()
+					},3000);
+					break;
+				case 'PAYERROR':
+					//支付失败
+					this.$toast.success({
+					    message:'支付失败',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+			}
+		},(err)=>{
+		    console.log(err);
+		})
+	},
+	getPayAliRes:function(){
+		var thar = this;
+		var o ={
+			'UserGuid':window.localStorage.getItem('UserGuid'),
+			'ProductId':thar.items.productId,
+			'ProductNuber':thar.num,
+			'MeetRoomNo':thar.vid.meeetRoomNo,
+			'MeetId':this.$parent.$data.MeetId,
+			'Money':thar.items.productPrices*thar.num*thar.personnum,
+			'out_trade_no':null,
+			'listtUser':thar.attr,
+			'zfb_external_out_trade_no':thar.AliPayData.out_trade_no,
+			'ProductName':thar.items.productName
+		};
+		this.$axios({
+		method:'post',
+			url:'http://emcapi.e-lab.cn:12315/api/EMcPay/AlipayPaySelect',
+			headers:{
+				'UserGuid':window.localStorage.getItem('UserGuid'),
+				'Authorization':'Bearer '+window.localStorage.getItem('Token'),
+			},
+			data:o,
+		}).
+		then((res)=>{
+			switch(res.data.data.zfb_status){
+				case 'SUCCESS':
+					//支付成功
+					this.$toast.success({
+					    message:'支付成功',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'REFUND':
+					//转入退款
+					thar.pay = !thar.pay;
+					break;
+				case 'NOTPAY':
+					//未支付
+					setTimeout(function(){
+						thar.getPayAliRes()
+					},3000);
+					break;
+				case 'CLOSED':
+					//已关闭
+					this.$toast.success({
+					    message:'订单已关闭',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'REVOKED':
+					//已撤销
+					this.$toast.success({
+					    message:'订单已撤销',
+					    position:'bottom center'
+					})
+					thar.pay = !thar.pay;
+					break;
+				case 'USERPAYING':
+					//支付中
+					setTimeout(function(){
+						thar.getPayAliRes()
 					},3000);
 					break;
 				case 'PAYERROR':
@@ -757,7 +878,7 @@ export default {
 .proms a{position: absolute;right: 0;top: 0;width: 70px;height: 70px;}
 .fenxiang{width: 80px;height: 40px;top: 25px;right: 10px;}
 .baberrage-stage {position: absolute;width: 100%;height: 180px;overflow: hidden;top: 0;font-size: 15px;}
-.payimg{background: url(/img/wxpay.png);background-size:100%;position: absolute;top: 50%;left: 50%;z-index: 2;}
+.payimg{background-size:100%;position: absolute;top: 50%;left: 50%;z-index: 2;}
 #qrcode{position: absolute;top: 50%;left: 50%;}
 .closepay{position: absolute;top: 20px;right: 20px;cursor: pointer;}
 </style>
